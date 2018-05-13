@@ -1,33 +1,23 @@
 from clcrypto import check_password
+from models import User
+from psycopg2 import connect, OperationalError
 
 
-class User:
-    __id = None
-    username = None
-    __hashed_password = None
-    email = None
-
-    @staticmethod
-    def get_user_by_email(email):
-        return User()
-
-    def save_to_db(self):
-        pass
-
-    def set_password(self, new_password):
-        self.__hashed_password = new_password
-
-    @property
-    def hashed_password(self):
-        return self.__hashed_password
-
-    @staticmethod
-    def get_all_users():
-        return [User(), User()]
+def create_connection(db_name="exercises_db"):
+    username = "postgres"
+    password = "coderslab"
+    host = "localhost"
+    try:
+        connection = connect(user=username, password=password, host=host, database=db_name)
+        return connection
+    except OperationalError:
+        return None
 
 
 def create_user(email, password):
-    user = User.get_user_by_email(email)
+    cnx = create_connection()
+    cursor = cnx.cursor()
+    user = User.get_user_by_email(cursor, email)
     if user:
         raise Exception("User Exists")
     else:
@@ -54,4 +44,3 @@ def display_all_user():
     user_list = User.get_all_users()
     for user in user_list:
         print(" %s %s " % (user.username, user.email))
-
